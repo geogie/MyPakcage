@@ -1,0 +1,39 @@
+android {
+    flavorDimensions "default"
+    // 单独配置
+    productFlavors {
+        baidu {
+            manifestPlaceholders = [CHANNEL_VALUE: "baidu"]
+            buildConfigField "String", "CHANNEL", "\"baidu\""
+        }
+        c360 {
+            manifestPlaceholders = [CHANNEL_VALUE: "c360"]
+            buildConfigField "String", "CHANNEL", "\"360\""
+        }
+        web {
+            manifestPlaceholders = [CHANNEL_VALUE: "web"]
+            buildConfigField "String", "CHANNEL", "\"web\""
+        }
+    }
+    //自定义APK名称,多渠道打包
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            variant.productFlavors.each { flavor ->
+                def project = "cpm"
+                def separator = "_"
+                def buildType = variant.variantData.variantConfiguration.buildType.name
+                def versionName = variant.versionName
+                def versionCode = variant.versionCode
+                def date = new Date()
+                def formattedDate = date.format('yyyyMMdd')
+
+                def apkName = project + separator + "v" + versionName + separator + versionCode + separator + buildType + separator + flavor.name + ".apk"
+                if (buildType == "release") {
+                    apkName = project + separator + "v" + versionName + separator + versionCode + separator + buildType + separator + flavor.name + separator + formattedDate + ".apk"
+                }
+
+                output.outputFileName = apkName
+            }
+        }
+    }
+}
